@@ -37,8 +37,6 @@ export class UsersService {
       address,
       image,
     });
-    // const user = new this.userModel({name, email, phone,password: hashPassword, address, image});
-    // return user.save();
     return {
       _id: user._id,
     };
