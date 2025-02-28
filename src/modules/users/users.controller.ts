@@ -15,14 +15,10 @@ export class UsersController {
 
   @Get()
   async findAll(
-    @Query("query") query: string,
-    @Query("current") current: number,
-    @Query("pagesize") pagesize: number,
-    @Query("sort") sort: string
+    @Query() querys: any
   ) {
-    return this.usersService.findAll(query, current, pagesize, sort);
+    return this.usersService.findAll(querys.query, querys.current, querys.pagesizet, querys.sort);
   }
-
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);

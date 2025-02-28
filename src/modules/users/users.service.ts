@@ -6,6 +6,7 @@ import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { hashPasswordHelper } from 'src/helper/utils';
 import aqp from 'api-query-params';
+import { log } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -49,6 +50,7 @@ export class UsersService {
     sort: string,
   ) {
     const { filter } = aqp(query);
+    console.log(query);
     if (!current) current = 1;
     if (!pagesize) pagesize = 10;
     const totalItems = (await this.userModel.find(filter)).length;
@@ -60,7 +62,7 @@ export class UsersService {
       .skip(skip)
       .sort(sort)
       .select('-password');
-    return { results, totalPages };
+    return { results,totalItems, totalPages };
   }
 
   findOne(id: string) {
