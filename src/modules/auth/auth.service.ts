@@ -15,11 +15,11 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    const isValidPassword = comparePasswordHelper(pass, user.password);
+    const isValidPassword = await comparePasswordHelper(pass, user.password);
     if (!isValidPassword) {
       throw new UnauthorizedException();
     }
-    const payload = { email: user.email, sub: user.id };
+    const payload = { sub: user.id,email: user.email };
     return {
       access_token: this.jwtservice.sign(payload),
     };

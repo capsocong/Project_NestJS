@@ -6,7 +6,7 @@ import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { hashPasswordHelper } from 'src/helper/utils';
 import aqp from 'api-query-params';
-import { log } from 'console';
+
 
 @Injectable()
 export class UsersService {
@@ -70,7 +70,7 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    return this.userModel.findOne({ email }).select('-password');
+    return this.userModel.findOne({ email }).select('+password');
   }
 
   async update( updateUserDto: UpdateUserDto) {
