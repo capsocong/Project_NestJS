@@ -12,10 +12,12 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { OrderDetailModule } from './modules/order.detail/order.detail.module';
 import { LikesModule } from './modules/likes/likes.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
     UsersModule,
+    AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -32,6 +34,7 @@ import { LikesModule } from './modules/likes/likes.module';
     OrdersModule,
     OrderDetailModule,
     LikesModule,
+  
   ],
   controllers: [AppController],
   providers: [AppService],

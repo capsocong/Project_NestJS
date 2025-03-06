@@ -6,7 +6,7 @@ import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
 import { hashPasswordHelper } from 'src/helper/utils';
 import aqp from 'api-query-params';
-import { log } from 'console';
+
 
 @Injectable()
 export class UsersService {
@@ -65,12 +65,12 @@ export class UsersService {
     return { results,totalItems, totalPages };
   }
 
-  findOne(id: string) {
-    return this.userModel.findById(id).select('-password');
+  async findOne(id: string) {
+    return await this.userModel.findById(id).select('-password');
   }
 
   async findOneByEmail(email: string) {
-    return this.userModel.findOne({ email }).select('-password');
+    return this.userModel.findOne({ email }).select('+password');
   }
 
   async update( updateUserDto: UpdateUserDto) {
