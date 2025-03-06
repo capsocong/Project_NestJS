@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Quer
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Public } from 'src/decorator/customize';
 
 
 @Controller('users')
@@ -14,11 +15,13 @@ export class UsersController {
   }
 
   @Get()
+  @Public()
   async findAll(
     @Query() querys: any
   ) {
     return this.usersService.findAll(querys.query, querys.current, querys.pagesizet, querys.sort);
   }
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
