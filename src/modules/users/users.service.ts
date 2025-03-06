@@ -65,8 +65,8 @@ export class UsersService {
     return { results,totalItems, totalPages };
   }
 
-  findOne(id: string) {
-    return this.userModel.findById(id).select('-password');
+  async findOne(id: string) {
+    return await this.userModel.findById(id).select('-password');
   }
 
   async findOneByEmail(email: string) {
