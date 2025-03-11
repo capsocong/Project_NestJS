@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public } from 'src/decorator/customize';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 
 @Controller('users')
@@ -10,8 +11,11 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Public()
+  @ApiOperation({ summary: 'Create user' })
+  @ApiBody({ type: CreateUserDto })
+  async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()
@@ -21,18 +25,21 @@ export class UsersController {
   ) {
     return this.usersService.findAll(querys.query, querys.current, querys.pagesizet, querys.sort);
   }
-  @Public()
+  
   @Get(':id')
+  @Public()
   async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
   
   @Patch()
+  @Public()
   async update(@Body(new ValidationPipe()) updateUserDto: UpdateUserDto) {
     return this.usersService.update(updateUserDto);
   }
 
   @Delete(':id')
+  @Public()
   async remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }

@@ -15,7 +15,7 @@ import { LikesModule } from './modules/likes/likes.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/passport/jwt.authGuard';
-
+import { MailModule } from './mail/mail.module';
 @Module({
   imports: [
     UsersModule,
@@ -36,7 +36,7 @@ import { JwtAuthGuard } from './modules/auth/passport/jwt.authGuard';
     OrdersModule,
     OrderDetailModule,
     LikesModule,
-  
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService,
