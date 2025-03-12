@@ -1,4 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,7 +13,7 @@ import { CreateAuthDto } from '../auth/dto/create-auth.dto';
 import * as dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 import { MailerService } from '@nestjs-modules/mailer';
-
+import { FindAllUserDto } from './dto/findAllUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +30,7 @@ export class UsersService {
     return false;
   };
   async create(createUserDto: CreateUserDto) {
-    const { name, email, password, phone, address, image } = createUserDto;
+    const { name, birth, email, password, phone, address, image } = createUserDto;
 
     //check email exist
     const isExist = await this.isEmailExist(email);
@@ -37,6 +40,7 @@ export class UsersService {
     const hashPassword = await hashPasswordHelper(password);
     const user = await this.userModel.create({
       name,
+      birth,
       email,
       phone,
       password: hashPassword,
@@ -48,16 +52,9 @@ export class UsersService {
     };
   }
 
-  async findAll(
-    query: string,
-    current: number,
-    pagesize: number,
-    sort: string,
-  ) {
-    const { filter } = aqp(query);
-    console.log(query);
-    if (!current) current = 1;
-    if (!pagesize) pagesize = 10;
+  async findAll(params: FindAllUserDto) {
+    const { query, current = 1, pagesize = 10, sort } = params;
+    const { filter } = aqp(query || {});
     const totalItems = (await this.userModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / pagesize);
     const skip = (current - 1) * pagesize;
@@ -67,7 +64,24 @@ export class UsersService {
       .skip(skip)
       .sort(sort)
       .select('-password');
-    return { results,totalItems, totalPages };
+    // return { results, totalItems, totalPages };
+    const formattedUsers = results.map((user) => {
+      const userObj = user.toObject();
+      return {
+          _id: userObj._id,
+          name: userObj.name,
+          birth: userObj.birth,  
+          email: userObj.email,
+          phone: userObj.phone,
+          address: userObj.address,
+          image: userObj.image,
+          account_type: userObj.account_type,
+          role: userObj.role,
+          is_active: userObj.is_active,
+          __v: userObj.__v
+      };
+  });
+  return {formattedUsers, totalItems, totalPages};
   }
 
   async findOne(id: string) {
@@ -78,32 +92,35 @@ export class UsersService {
     return this.userModel.findOne({ email }).select('+password');
   }
 
-  async update( updateUserDto: UpdateUserDto) {
-    return await this.userModel.updateOne(
-      { _id: updateUserDto._id },
-      { ...updateUserDto },
-    );
+  async update(updateUserDto: UpdateUserDto) {
+    //check id
+
+    const { _id, updatedAt, ...updateData } = updateUserDto;
+
+    const updateUser = await this.userModel
+      .findByIdAndUpdate({ _id: _id }, { $set: updateData }, { new: true })
+      .select('-password');
+
+    return updateUser;
   }
 
   async remove(id: string) {
     //check id
-    if(mongoose.isValidObjectId(id)){
+    if (mongoose.isValidObjectId(id)) {
       return this.userModel.deleteOne({ _id: id });
-    }else{
+    } else {
       throw new BadRequestException(`Id is not valid ${id}`);
     }
-    
   }
 
   async handleRegister(registerDto: CreateAuthDto) {
     const { username, email, password } = registerDto;
-
     //check email exist
     const isExist = await this.isEmailExist(email);
     if (isExist) {
       throw new BadRequestException(`Email is exist ${email}. try again`);
     }
-    
+
     const hashPassword = await hashPasswordHelper(password);
     const codeId = uuidv4();
     const user = await this.userModel.create({
@@ -112,21 +129,40 @@ export class UsersService {
       password: hashPassword,
       isActive: false,
       codeId: codeId,
-      codeExpired:dayjs().add(30, 'second')
+      codeExpired: dayjs().add(30, 'second'),
     });
     //send email
     await this.mailerservice.sendMail({
       to: user.email, // list of receivers
       from: 'noreply@nestjs.com', // sender address
       subject: 'Activate your account ✔', // Subject line
-      template: 'register.hbs', 
+      template: 'register.hbs',
       context: {
         name: user?.name ?? user.email,
-        activationCode: codeId
-      }
+        activationCode: codeId,
+      },
     });
     return {
       _id: user._id,
-    };  
+    };
+
+  }
+  async findUsersWithBirthdayToday() {
+    const today = new Date();
+    const todayMonthDay = `${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    console.log('todayMonthDay', todayMonthDay);
+    return this.userModel.find({
+      $expr: {
+        $eq: [
+          { 
+            $dateToString: { 
+              format: "%m-%d", 
+              date: { $dateAdd: { startDate: "$birth", unit: "hour", amount: 7 } } // Chuyển sang UTC+7
+            } 
+          },
+          todayMonthDay
+        ]
+      }
+    }).exec();
   }
 }

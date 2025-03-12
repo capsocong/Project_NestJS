@@ -12,8 +12,8 @@ export class UsersController {
 
   @Post()
   @Public()
-  @ApiOperation({ summary: 'Create user' })
-  @ApiBody({ type: CreateUserDto })
+  // @ApiOperation({ summary: 'Create user' })
+  // @ApiBody({ type: CreateUserDto })
   async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
@@ -23,7 +23,7 @@ export class UsersController {
   async findAll(
     @Query() querys: any
   ) {
-    return this.usersService.findAll(querys.query, querys.current, querys.pagesizet, querys.sort);
+    return this.usersService.findAll(querys);
   }
   
   @Get(':id')

@@ -16,6 +16,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/passport/jwt.authGuard';
 import { MailModule } from './mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './modules/users/Cronjob/cron.service';
 @Module({
   imports: [
     UsersModule,
@@ -28,6 +30,7 @@ import { MailModule } from './mail/mail.module';
       }),
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     RestaurantsModule,
     MenusModule,
     MenuItemsModule,
@@ -36,14 +39,16 @@ import { MailModule } from './mail/mail.module';
     OrdersModule,
     OrderDetailModule,
     LikesModule,
-    MailModule
+    MailModule,
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    AppService,
+    CronService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
-    }
+    },
   ],
 })
 export class AppModule {}

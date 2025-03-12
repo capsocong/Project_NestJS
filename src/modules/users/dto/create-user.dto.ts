@@ -5,6 +5,8 @@ export class CreateUserDto {
   // @ApiProperty({example: 'Nguyen Van A', description: 'The name of user'})
   @IsNotEmpty()
   name: string;
+  @IsNotEmpty()
+  birth: Date;
   // @ApiProperty({example: 'nguyenvana@gmail.com', description: 'The email of user'})
   @IsEmail()  
   email: string;
@@ -15,6 +17,7 @@ export class CreateUserDto {
   @MinLength(10)
   phone: string;
   // @ApiProperty({example: 'Ha Noi', description: 'The address of user'})
+  @IsNotEmpty()
   address: string;
   // @ApiProperty({example: 'https://www.google.com', description: 'The image of user'})
   @IsNotEmpty()  

@@ -8,9 +8,13 @@ export class UpdateUserDto {
   @IsOptional()
   name: string;
   @IsOptional()
-  phone: string;
+  birth: Date;
   @IsOptional()
+  phone: string;
+  @IsNotEmpty()
   address: string;
   @IsOptional()
   image: string;
+  @IsOptional()
+  updatedAt: Date;  
 }
